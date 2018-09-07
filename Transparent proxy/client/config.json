@@ -1,0 +1,148 @@
+{
+	"inbound": {
+		"port": 1080,
+		"streamSettings": null,
+		"settings": {
+			"ip": "127.0.0.1",
+			"udp": true,
+			"clients": null,
+			"auth": "noauth"
+		},
+		"protocol": "socks",
+		"listen": "0.0.0.0"
+	},
+	"inboundDetour": [
+		{
+			"port": "1099",
+			"listen": "0.0.0.0",
+			"allocate": {
+				"strategy": "always",
+				"refresh": 5,
+				"concurrency": 3
+			},
+			//用了这个socks协议打包后的文件就会直接在这里解析出域名，然后把域名发往vps的dns出ip，这样防止国内dns的污染
+			"domainOverride": [
+				"tls",
+				"http"
+			],
+			"protocol": "dokodemo-door",
+			"settings": {
+				"network": "tcp,udp",
+				"timeout": 30,
+				"followRedirect": true
+			}
+		},
+		{ //开放http端口
+			"port": 10800,
+			"streamSettings": null,
+			"settings": {
+				"ip": "127.0.0.1",
+				"udp": true,
+				"clients": null,
+				"auth": "noauth"
+			},
+			"protocol": "http",
+			"listen": "0.0.0.0"
+		}
+	],
+	"outbound": {
+		"streamSettings": {
+			"network": "tcp",
+			"kcpSettings": null,
+			"wsSettings": null,
+			"tcpSettings": null,
+			"tlsSettings": {},
+			"security": ""
+		},
+		"tag": "agentout",
+		"protocol": "vmess",
+		"mux": {
+			"enabled": true
+		},
+		"settings": {
+			"vnext": [
+				{
+					"users": [
+						{
+							"alterId": 100,
+							"security": "auto",
+							"id": "a4f907f7-fad2-45f3-8e01-60f3a26f84f7"
+						}
+					],
+					"port": 12345,
+					"address": "207.246.99.252"
+				}
+			]
+		}
+	},
+	"log": {
+		"access": "",
+		"loglevel": "info",
+		"error": ""
+	},
+	"outboundDetour": [
+		{
+			"protocol": "freedom",
+			"settings": {},
+			"tag": "direct"
+		}
+	],
+	"routing": {
+		"strategy": "rules",
+		"settings": {
+			"rules": [
+				{
+					"type": "field",
+					"port": "54-79",
+					"outboundTag": "direct"
+				},
+				{
+					"type": "field",
+					"port": "81-442",
+					"outboundTag": "direct"
+				},
+				{
+					"type": "field",
+					"port": "444-65535",
+					"outboundTag": "direct"
+				},
+				{
+					"type": "field",
+					"domain": [
+						"gc.kis.scr.kaspersky-labs.com"
+					],
+					"outboundTag": "direct"
+				},
+				{
+					"type": "chinasites",
+					"outboundTag": "direct"
+				},
+				{
+					"type": "field",
+					"ip": [
+						"0.0.0.0/8",
+						"10.0.0.0/8",
+						"100.64.0.0/10",
+						"127.0.0.0/8",
+						"169.254.0.0/16",
+						"172.16.0.0/12",
+						"192.0.0.0/24",
+						"192.0.2.0/24",
+						"192.168.0.0/16",
+						"198.18.0.0/15",
+						"198.51.100.0/24",
+						"203.0.113.0/24",
+						"::1/128",
+						"fc00::/7",
+						"fe80::/10"
+					],
+					"outboundTag": "direct"
+				},
+				{
+					"type": "chinaip",
+					"outboundTag": "direct"
+				}
+			]
+		}
+	}
+}
