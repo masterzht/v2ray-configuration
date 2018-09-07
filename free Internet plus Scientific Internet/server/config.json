@@ -1,0 +1,145 @@
+{
+  "log": { //在当前平台留下的日志
+    "access": "", //留空表示不记录访问日志，并将日志输出至 stdout。
+    "loglevel": "info",
+    "error": "" //留空表示不记录访问日志，并将日志输出至 stdout。
+  },
+  "inbound": {
+    "port": 29988, // 服务器监听端口
+    "protocol": "vmess",    // 主传入协议
+    "domainOverride": ["tls","http"],
+    "settings": {
+      "clients": [
+        {
+          "id": "29c02e02-8cd8-db9a-73bd-c73fe138d7e2",
+          "alterId": 100
+        }
+      ]
+    }
+  },
+  	"inboundDetour": [
+		{ //开放http端口
+			"port": 29999,
+			"streamSettings": null,
+			"settings": {
+				"ip": "127.0.0.1",
+				"udp": true,
+				"clients": null,
+				"auth": "noauth"
+			},
+			"protocol": "http",
+			"listen": "0.0.0.0"
+		}
+	],
+  "outbound": {
+    "streamSettings": {
+     "network": "tcp", 
+     "kcpSettings": null, 
+     "wsSettings": null, 
+     "tcpSettings": null, 
+     "tlsSettings": {}, 
+     "security": ""
+    }, 
+    "tag": "agentout", 
+    "protocol": "vmess", 
+    "mux": {
+     "enabled": true
+    }, 
+    "settings": {
+     "vnext": [
+      {
+       "users": [
+        {
+         "alterId": 100, 
+         "security": "aes-128-gcm", 
+         "id": "a4f907f7-fad2-45f3-8e01-60f3a26f84f7"
+        }
+       ], 
+       "port": 12345, 
+       "address": "207.246.99.252"
+      }
+     ]
+    }
+   },
+   "outboundDetour": [ //额外的传出连接配置-可以判断哪些网站直连，哪些广告连接过滤，哪些走代理
+     {
+       "tag": "direct", //用direct作为直连服务的代号，供后面使用
+       "protocol": "freedom",
+       "settings": {
+         "response": null
+       }
+     },
+     {
+       "tag": "adblock", //如果要使用路由，这个 tag 是一定要有的，这个是设置广告过滤功能，这个目前只能过滤指定网站，不弄了
+       "protocol": "blackhole",
+       "settings": {
+         "response": {
+           "type": "http"
+         }
+       }
+     }
+   ],
+   "routing": { //路由功能，实现国内网站直连，国外网站代理
+     "settings": {
+       "strategy": "rules", //固定格式
+       "domainStrategy": "IPIfNonMatch", //固定格式
+       "rules": [
+         { //这些ip直连
+           "domain": null,
+           "type": "field",
+           "port": null,
+           "outboundTag": "direct",
+           "ip": [
+             "0.0.0.0/8",
+             "10.0.0.0/8",
+             "100.64.0.0/10",
+             "127.0.0.0/8",
+             "169.254.0.0/16",
+             "172.16.0.0/12",
+             "192.0.0.0/24",
+             "192.0.2.0/24",
+             "192.168.0.0/16",
+             "198.18.0.0/15",
+             "198.51.100.0/24",
+             "203.0.113.0/24",
+             "::1/128",
+             "fc00::/7",
+             "fe80::/10"
+           ]
+         },
+         {//这些端口直连
+           "type": "field",
+           "port": "54-79",
+           "outboundTag": "direct"
+         },
+         {
+           "type": "field",
+           "port": "81-442",
+           "outboundTag": "direct"
+         },
+         {
+           "type": "field",
+           "port": "444-65535",
+           "outboundTag": "direct"
+         },
+         { //中国ip直连
+           "type": "chinaip",
+           "outboundTag": "direct"
+         },
+         { //中国网站直连
+           "type": "chinasites",
+           "outboundTag": "direct"
+         },
+         { //包含下面域名的直连
+           "domain": [
+             "jd.com",
+             "youku.com",
+             "baidu.com"
+           ],
+           "type": "field",
+           "outboundTag": "direct" //改成adblock就过滤
+         }
+       ]
+     }
+   }
+}

@@ -1,0 +1,27 @@
+{
+  "log": { //在当前平台留下的日志
+    "access": "", //留空表示不记录访问日志，并将日志输出至 stdout。
+    "loglevel": "info",
+    "error": "" //留空表示不记录访问日志，并将日志输出至 stdout。
+  },
+  "inbound": {
+    "port": 29988, // 服务器监听端口
+    "protocol": "vmess", // 主传入协议
+    "domainOverride": [
+      "tls",
+      "http"
+    ],
+    "settings": {
+      "clients": [
+        {
+          "id": "29c02e02-8cd8-db9a-73bd-c73fe138d7e2",
+          "alterId": 100
+        }
+      ]
+    }
+  },
+  "outbound": {
+    "protocol": "freedom", // 主传出协议，直连上网
+    "settings": {}
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "log": { //在当前平台留下的日志
+    "access": "", //留空表示不记录访问日志，并将日志输出至 stdout。
+    "loglevel": "info",
+    "error": "" //留空表示不记录访问日志，并将日志输出至 stdout。
+  },
+  "inbound": {
+    "port": 10800, // 监听端口
+    "protocol": "http", // 入口协议为 SOCKS 5
+    "domainOverride": [
+      "tls",
+      "http"
+    ],
+    "settings": {
+      "auth": "noauth" //socks的认证设置，noauth 代表不认证，由于 socks 通常在客户端使用，所以这里不认证
+    }
+  },
+  "outbound": {
+    "protocol": "vmess", // 出口协议
+    "mux": {
+      "enabled": true
+    },
+    "settings": {
+      "vnext": [
+        {
+          "address": "172.18.28.22", // 服务器地址，请修改为你自己的服务器 ip 或域名
+          "port": 29988, // 服务器端口
+          "users": [
+            {
+              "id": "29c02e02-8cd8-db9a-73bd-c73fe138d7e2",
+              "alterId": 100,
+              "security": "aes-128-gcm"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
